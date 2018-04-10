@@ -2,14 +2,25 @@
 title: "CourseProject1"
 author: "André Costa"
 date: "10 de abril de 2018"
-output: html_document
+output: html_document:
+        keep_md: true
+
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Course Project 1
+---
+title: "Reproducible Research: Peer Assessment 1"
+output: 
+  html_document:
+    keep_md: true
+---
+
+# Course Project 1
+
+## Loading and preprocessing the data
 
 First the data is load and treated
 
@@ -25,6 +36,9 @@ data <-data %>%
                        ymd(as.character(date))+minutes(interval)))
 
 ```
+
+
+## What is mean total number of steps taken per day?
 
 Then, mean and median of the daily sum are calculated. NAs are disconsidered.
 
@@ -49,6 +63,10 @@ p+geom_histogram(aes(steps))+
 
 The mean is `r dailymean` and the median is `r dailymedian` 
 
+## What is the average daily activity pattern?
+
+
+
 Then, a plot of the timeseries of the avarage value for each interval is calculated
 and the timeseries for an avarage day is plotted.
 
@@ -69,6 +87,10 @@ p+ geom_line()
 ```
 
 The interval with more steps is the one starting at `r maximum` minutes.
+
+
+
+## Imputing missing values
 
 Then, mean and median of the daily sum are calculated. NAs values weree substituted 
 for the values of an avarage day.
@@ -106,8 +128,11 @@ p+geom_histogram(aes(steps))+
 The mean is `r dailymean` and the median is `r dailymedian`. Considerably bigger than in
 the previous exercise.
 
+
+## Are there differences in activity patterns between weekdays and weekends?
+
 Then, the data is stratified into weekends and weekdays. And timeseries are ploted for these 
-two cases.
+two cases. It can be verified very different patterns
 
 ```{r weekend}
 library(chron)
