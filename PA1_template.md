@@ -1,13 +1,6 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+
 
 ---
 title: "Reproducible Research: Peer Assessment 1"
@@ -22,7 +15,8 @@ output:
 
 First the data is load and treated
 
-```{r load, warning=FALSE,message=FALSE}
+
+```r
 library(dplyr)
 library(lubridate)
 library(ggplot2)
@@ -32,7 +26,6 @@ data <-data %>%
         mutate(steps=steps,
                time=as.POSIXct(
                        ymd(as.character(date))+minutes(interval)))
-
 ```
 
 
@@ -40,8 +33,8 @@ data <-data %>%
 
 Then, mean and median of the daily sum are calculated. NAs are disconsidered.
 
-```{r stepsPerDay}
 
+```r
 daily<-data%>%
         group_by(date)%>%
         summarize(steps=sum(steps, na.rm=T))
@@ -56,10 +49,15 @@ p+geom_histogram(aes(steps))+
         geom_vline(aes(xintercept=dailymean,color='mean'),size=1.1)+
         scale_color_manual(name = "statistics",
                            values = c(median = "red", mean = "blue"))
-
 ```
 
-The mean is `r dailymean` and the median is `r dailymedian` 
+```
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+```
+
+![](PA1_template_files/figure-html/stepsPerDay-1.png)<!-- -->
+
+The mean is 9354.2295082 and the median is 10395 
 
 ## What is the average daily activity pattern?
 
@@ -69,8 +67,8 @@ Then, a plot of the timeseries of the avarage value for each interval is calcula
 and the timeseries for an avarage day is plotted.
 
 
-```{r avarageday}
 
+```r
 avarageday<-data%>%
         group_by(interval)%>%
         summarize(steps=mean(steps, na.rm=T))
@@ -80,11 +78,11 @@ maximum<-data$interval[which(avarageday$steps==max(avarageday$steps))]
 
 p<-ggplot(data=avarageday,aes(interval,steps))
 p+ geom_line() 
-
-
 ```
 
-The interval with more steps is the one starting at `r maximum` minutes.
+![](PA1_template_files/figure-html/avarageday-1.png)<!-- -->
+
+The interval with more steps is the one starting at 835 minutes.
 
 
 
@@ -93,7 +91,8 @@ The interval with more steps is the one starting at `r maximum` minutes.
 Then, mean and median of the daily sum are calculated. NAs values weree substituted 
 for the values of an avarage day.
 
-```{r imputmissing}
+
+```r
 totNAs<-sum(is.na(data$steps))
 
 data2<-data%>%mutate(steps=ifelse(is.na(steps),round(
@@ -113,10 +112,15 @@ p+geom_histogram(aes(steps))+
         geom_vline(aes(xintercept=dailymean,color='mean'),size=1.1)+
         scale_color_manual(name = "statistics",
                            values = c(median = "red", mean = "blue"))
-
 ```
 
-The mean is `r dailymean` and the median is `r dailymedian`. Considerably bigger than in
+```
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+```
+
+![](PA1_template_files/figure-html/imputmissing-1.png)<!-- -->
+
+The mean is 1.0281836\times 10^{4} and the median is 1.0395\times 10^{4}. Considerably bigger than in
 the previous exercise.
 
 
@@ -125,9 +129,27 @@ the previous exercise.
 Then, the data is stratified into weekends and weekdays. And timeseries are ploted for these 
 two cases. It can be verified very different patterns
 
-```{r weekend}
-library(chron)
 
+```r
+library(chron)
+```
+
+```
+## Warning: package 'chron' was built under R version 3.4.4
+```
+
+```
+## 
+## Attaching package: 'chron'
+```
+
+```
+## The following objects are masked from 'package:lubridate':
+## 
+##     days, hours, minutes, seconds, years
+```
+
+```r
 data<-data %>%
         mutate(weekend=is.weekend(time))
 
@@ -137,5 +159,6 @@ avarageday<-data%>%
 
 p<-ggplot(data=avarageday,aes(interval,steps))
 p+ geom_line(aes(color=weekend))
-
 ```
+
+![](PA1_template_files/figure-html/weekend-1.png)<!-- -->
