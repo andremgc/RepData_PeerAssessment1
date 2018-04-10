@@ -1,25 +1,125 @@
 ---
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
+title: "CourseProject1"
+author: "André Costa"
+date: "10 de abril de 2018"
+output: html_document
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
-## Loading and preprocessing the data
+## Course Project 1
+
+First the data is load and treated
+
+```{r load, warning=FALSE,message=FALSE}
+library(dplyr)
+library(lubridate)
+library(ggplot2)
+data<-read.csv("activity.csv")
+
+data <-data %>%
+        mutate(steps=steps,
+               time=as.POSIXct(
+                       ymd(as.character(date))+minutes(interval)))
+
+```
+
+Then, mean and median of the daily sum are calculated. NAs are disconsidered.
+
+```{r stepsPerDay}
+
+daily<-data%>%
+        group_by(date)%>%
+        summarize(steps=sum(steps, na.rm=T))
 
 
+dailymean<-mean(daily$steps)
+dailymedian<-median(daily$steps)
 
-## What is mean total number of steps taken per day?
+p<-ggplot(data=daily)
+p+geom_histogram(aes(steps))+
+        geom_vline(aes(xintercept=dailymedian,color='median') ,size=1.1) +
+        geom_vline(aes(xintercept=dailymean,color='mean'),size=1.1)+
+        scale_color_manual(name = "statistics",
+                           values = c(median = "red", mean = "blue"))
+
+```
+
+The mean is `r dailymean` and the median is `r dailymedian` 
+
+Then, a plot of the timeseries of the avarage value for each interval is calculated
+and the timeseries for an avarage day is plotted.
 
 
+```{r avarageday}
 
-## What is the average daily activity pattern?
-
-
-
-## Imputing missing values
-
+avarageday<-data%>%
+        group_by(interval)%>%
+        summarize(steps=mean(steps, na.rm=T))
 
 
-## Are there differences in activity patterns between weekdays and weekends?
+maximum<-data$interval[which(avarageday$steps==max(avarageday$steps))]
+
+p<-ggplot(data=avarageday,aes(interval,steps))
+p+ geom_line() 
+
+
+```
+
+The interval with more steps is the one starting at `r maximum` minutes.
+
+Then, mean and median of the daily sum are calculated. NAs values weree substituted 
+for the values of an avarage day.
+
+```{r imputmissing}
+totNAs<-sum(is.na(data$steps))
+
+data2<-data%>%mutate(steps=ifelse(is.na(steps),round(
+        avarageday$steps[interval/5+1]),steps))
+
+
+maximum<-data$interval[which(daily$steps==max(daily$steps))]
+
+p<-ggplot(data=avarageday,aes(interval,steps))
+p+ geom_line() 
+
+
+daily<-data2%>%
+        group_by(date)%>%
+        summarize(steps=sum(steps, na.rm=T))
+
+
+dailymean<-mean(daily$steps)
+dailymedian<-median(daily$steps)
+
+p<-ggplot(data=daily)
+p+geom_histogram(aes(steps))+
+        geom_vline(aes(xintercept=dailymedian,color='median') ,size=1.1) +
+        geom_vline(aes(xintercept=dailymean,color='mean'),size=1.1)+
+        scale_color_manual(name = "statistics",
+                           values = c(median = "red", mean = "blue"))
+
+```
+
+The mean is `r dailymean` and the median is `r dailymedian`. Considerably bigger than in
+the previous exercise.
+
+Then, the data is stratified into weekends and weekdays. And timeseries are ploted for these 
+two cases.
+
+```{r weekend}
+library(chron)
+
+data<-data %>%
+        mutate(weekend=is.weekend(time))
+
+avarageday<-data%>%
+        group_by(interval,weekend)%>%
+        summarize(steps=mean(steps, na.rm=T))
+
+p<-ggplot(data=avarageday,aes(interval,steps))
+p+ geom_line(aes(color=weekend))
+
+```
