@@ -158,7 +158,7 @@ avarageday<-data%>%
         summarize(steps=mean(steps, na.rm=T))
 
 p<-ggplot(data=avarageday,aes(interval,steps))
-p+ geom_line(aes(color=weekend))
+p+ geom_line()+facet_grid(weekend~.)
 ```
 
 ![](PA1_template_files/figure-html/weekend-1.png)<!-- -->
